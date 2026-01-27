@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { 
   ArrowUpRight,
   Search, 
@@ -8,7 +9,6 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Receipt, 
-  CircleAlert, 
   User, 
   Building2, 
   Calendar,
@@ -20,46 +20,66 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { fetchAPI } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 export default function GastosExploration() {
-  const [items, setItems] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
   
   // Filters
   const [nome, setNome] = useState("");
   const [partido, setPartido] = useState("");
   const [tipo, setTipo] = useState("");
-  const [mes, setMes] = useState("all");
+  const [periodo, setPeriodo] = useState("all");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [sortBy, setSortBy] = useState("data");
+  const [sortOrder, setSortOrder] = useState("desc");
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading } = useQuery({
+    queryKey: ['gastos', { page, nome, partido, tipo, dataInicio, dataFim, sortBy, sortOrder }],
+    queryFn: async () => {
       let url = `/gastos/exploration?page=${page}&page_size=12`;
       if (nome) url += `&politico_nome=${nome}`;
       if (partido && partido !== "all") url += `&sigla_partido=${partido}`;
       if (tipo && tipo !== "all") url += `&tipo_despesa=${tipo}`;
-      if (mes && mes !== "all") url += `&mes=${mes}`;
+      if (dataInicio) url += `&data_inicio=${dataInicio}`;
+      if (dataFim) url += `&data_fim=${dataFim}`;
+      url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
+      return fetchAPI(url);
+    },
+  });
 
-      const data = await fetchAPI(url);
-      setItems(data.items);
-      setTotal(data.total);
-    } catch (error) {
-      console.error("Failed to fetch expenses:", error);
-    } finally {
-      setLoading(false);
+  const items = data?.items || [];
+  const total = data?.total || 0;
+
+  const handlePeriodChange = (val: string) => {
+    setPeriodo(val);
+    const now = new Date();
+    if (val === "30") {
+      const d = new Date();
+      d.setDate(now.getDate() - 30);
+      setDataInicio(d.toISOString().split('T')[0]);
+      setDataFim(now.toISOString().split('T')[0]);
+    } else if (val === "90") {
+      const d = new Date();
+      d.setDate(now.getDate() - 90);
+      setDataInicio(d.toISOString().split('T')[0]);
+      setDataFim(now.toISOString().split('T')[0]);
+    } else if (val === "month") {
+      const d = new Date(now.getFullYear(), now.getMonth(), 1);
+      setDataInicio(d.toISOString().split('T')[0]);
+      setDataFim(now.toISOString().split('T')[0]);
+    } else if (val === "all") {
+      setDataInicio("");
+      setDataFim("");
     }
+    // "custom" doesn't auto-set dates
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [page, partido, tipo, mes]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchData();
+    // useQuery will automatically refetch when 'nome' or 'page' changes if keyed correctly
   };
 
   return (
@@ -73,7 +93,6 @@ export default function GastosExploration() {
         </p>
       </div>
 
-      {/* Filters Bar */}
       <Card className="glass border-white/5 p-4 rounded-3xl">
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="relative col-span-1 lg:col-span-2">
@@ -102,6 +121,41 @@ export default function GastosExploration() {
           </select>
 
           <select 
+            value={periodo} 
+            onChange={(e) => handlePeriodChange(e.target.value)}
+            className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-sm appearance-none glass-hover cursor-pointer"
+          >
+            <option value="all" className="bg-slate-900">Todo o Período</option>
+            <option value="30" className="bg-slate-900">Últimos 30 dias</option>
+            <option value="90" className="bg-slate-900">Últimos 90 dias</option>
+            <option value="month" className="bg-slate-900">Mês Atual</option>
+            <option value="custom" className="bg-slate-900">Personalizado...</option>
+          </select>
+
+          {periodo === "custom" && (
+            <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Início</label>
+                <Input 
+                  type="date" 
+                  value={dataInicio} 
+                  onChange={(e) => setDataInicio(e.target.value)}
+                  className="glass-hover border-white/10 rounded-xl h-12 invert-calendar-icon"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Fim</label>
+                <Input 
+                  type="date" 
+                  value={dataFim} 
+                  onChange={(e) => setDataFim(e.target.value)}
+                  className="glass-hover border-white/10 rounded-xl h-12 invert-calendar-icon"
+                />
+              </div>
+            </div>
+          )}
+
+          <select 
             value={tipo} 
             onChange={(e) => setTipo(e.target.value)}
             className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none glass-hover cursor-pointer"
@@ -121,8 +175,42 @@ export default function GastosExploration() {
         </form>
       </Card>
 
+      {/* Grid Controls */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-4">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-2">Ordenar por:</span>
+          <Button 
+            variant={sortBy === "data" ? "secondary" : "ghost"} 
+            size="sm" 
+            className="rounded-xl font-bold h-9 px-4"
+            onClick={() => setSortBy("data")}
+          >
+            Data
+          </Button>
+          <Button 
+            variant={sortBy === "valor" ? "secondary" : "ghost"} 
+            size="sm" 
+            className="rounded-xl font-bold h-9 px-4"
+            onClick={() => setSortBy("valor")}
+          >
+            Valor
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={cn("rounded-xl font-bold h-9 px-4 border-white/10", sortOrder === "desc" && "bg-primary/10 text-primary border-primary/20")}
+            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+          >
+            {sortOrder === "desc" ? "Mais Recentes / Maiores" : "Mais Antigos / Menores"}
+          </Button>
+        </div>
+      </div>
+
       {/* Grid */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-64 glass rounded-3xl animate-pulse" />
@@ -131,7 +219,7 @@ export default function GastosExploration() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((gasto) => (
+            {items.map((gasto: any) => (
               <Card key={gasto.id} className="glass group hover:border-primary/40 transition-all cursor-pointer overflow-hidden relative">
                 {gasto.ai_resumo && (
                   <div className="absolute top-0 right-0 p-3 z-10">
@@ -207,7 +295,7 @@ export default function GastosExploration() {
         </>
       )}
 
-      {items.length === 0 && !loading && (
+      {items.length === 0 && !isLoading && (
         <div className="py-20 text-center flex flex-col items-center justify-center space-y-4">
            <Layers className="w-16 h-16 text-muted/30" />
            <p className="text-muted-foreground font-medium">Nenhum gasto encontrado para os filtros selecionados.</p>

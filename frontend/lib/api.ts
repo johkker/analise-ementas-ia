@@ -21,6 +21,6 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
 export const endpoints = {
     stats: "/stats/dashboard",
-    deputados: "/deputados",
-    proposicoes: "/proposicoes",
+    deputados: "/deputados/",
+    proposicoes: "/proposicoes/",
 };

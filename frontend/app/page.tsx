@@ -1,33 +1,48 @@
-import { ArrowUpRight, TrendingUp, AlertTriangle, ShieldCheck, User, PieChart, Receipt, Zap } from "lucide-react";
+"use client";
+
+import { 
+  ArrowUpRight, 
+  TrendingUp, 
+  AlertTriangle, 
+  ShieldCheck, 
+  User, 
+  PieChart, 
+  Receipt, 
+  Zap 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { fetchAPI, endpoints } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { DeputyDetailsModal } from "@/components/deputados/DeputyDetailsModal";
 
-async function getStats() {
-  try {
-    return await fetchAPI(endpoints.stats);
-  } catch (error) {
-    console.error("Failed to fetch statistics:", error);
-    return null;
-  }
-}
+export default function Home() {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-async function getFeaturedProposicao() {
-  try {
-    const proposicoes = await fetchAPI(`${endpoints.proposicoes}?limit=1`);
-    return proposicoes.items?.[0] || proposicoes[0] || null;
-  } catch (error) {
-    console.error("Failed to fetch proposições:", error);
-    return null;
-  }
-}
+  const openModal = (id: number) => {
+    setSelectedId(id);
+    setIsModalOpen(true);
+  };
 
-export default async function Home() {
-  const stats = await getStats();
-  const featured = await getFeaturedProposicao();
+  const { data: stats, isLoading: loadingStats } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => fetchAPI(endpoints.stats),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const { data: featuredProposicao, isLoading: loadingFeatured } = useQuery({
+    queryKey: ['featured-proposicao'],
+    queryFn: async () => {
+      const data = await fetchAPI(`${endpoints.proposicoes}?limit=1`);
+      return data.items?.[0] || data[0] || null;
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
 
   return (
     <main className="space-y-12 pb-20">
@@ -92,7 +107,7 @@ export default async function Home() {
 
         <Card className="glass group">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Deputados Atos</CardTitle>
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Deputados Ativos</CardTitle>
             <ShieldCheck className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
@@ -136,7 +151,11 @@ export default async function Home() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {stats?.top_spenders?.map((politico: any, idx: number) => (
-              <Card key={idx} className="glass-light border-white/5 hover:border-primary/30 transition-all cursor-pointer group overflow-hidden">
+              <Card 
+                key={idx} 
+                className="glass-light border-white/5 hover:border-primary/30 transition-all cursor-pointer group overflow-hidden"
+                onClick={() => politico.id && openModal(politico.id)}
+              >
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-muted border border-white/10 shrink-0">
                     {politico.foto_url && (
@@ -202,19 +221,19 @@ export default async function Home() {
           <h2 className="text-4xl font-heading font-black tracking-tighter leading-none">
             Visão Sistêmica
           </h2>
-          {featured ? (
+          {featuredProposicao ? (
             <Card className="glass border-emerald-500/20 relative overflow-hidden group shadow-2xl shadow-primary/5">
               <div className="absolute top-0 right-0 p-4">
                  <Badge className="bg-primary text-primary-foreground font-black text-[10px] uppercase tracking-widest">IA ANALYTICS</Badge>
               </div>
               <CardHeader>
                 <CardTitle className="text-2xl font-black pr-20 leading-tight">
-                  {featured.sigla_tipo} {featured.numero}/{featured.ano}
+                  {featuredProposicao.sigla_tipo} {featuredProposicao.numero}/{featuredProposicao.ano}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <p className="text-muted-foreground leading-relaxed font-medium line-clamp-4 text-base italic">
-                  "{featured.ementa}"
+                  "{featuredProposicao.ementa}"
                 </p>
                 <div className="flex items-center justify-between pt-6 border-t border-white/5">
                   <div className="flex items-center gap-6">
@@ -225,7 +244,7 @@ export default async function Home() {
                         </span>
                     </div>
                   </div>
-                  <Link href={`/proposicoes/${featured.id}`}>
+                  <Link href={`/proposicoes/${featuredProposicao.id}`}>
                     <Button variant="secondary" size="sm" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-10 px-6">
                       Relatório Completo
                     </Button>
@@ -254,6 +273,12 @@ export default async function Home() {
            </div>
         </div>
       </div>
+
+      <DeputyDetailsModal 
+        deputadoId={selectedId}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </main>
   );
 }

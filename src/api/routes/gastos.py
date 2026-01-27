@@ -18,10 +18,14 @@ async def get_gastos_exploration(
     sigla_partido: Optional[str] = Query(None),
     ano: Optional[int] = Query(None),
     mes: Optional[int] = Query(None),
+    data_inicio: Optional[date] = Query(None),
+    data_fim: Optional[date] = Query(None),
     tipo_despesa: Optional[str] = Query(None),
     min_valor: Optional[float] = Query(None),
     max_valor: Optional[float] = Query(None),
     has_ai_analysis: Optional[bool] = Query(None),
+    sort_by: str = Query("data", enum=["data", "valor"]),
+    sort_order: str = Query("desc", enum=["asc", "desc"]),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100)
 ):
@@ -44,6 +48,10 @@ async def get_gastos_exploration(
         filters.append(Politico.nome_parlamentar.ilike(f"%{politico_nome}%"))
     if sigla_partido:
         filters.append(Partido.sigla.ilike(f"%{sigla_partido}%"))
+    if data_inicio:
+        filters.append(Gasto.data_emissao >= data_inicio)
+    if data_fim:
+        filters.append(Gasto.data_emissao <= data_fim)
     if ano:
         filters.append(func.extract('year', Gasto.data_emissao) == ano)
     if mes:
@@ -68,7 +76,13 @@ async def get_gastos_exploration(
     total_count = await db.scalar(count_stmt)
 
     # Paging and ordering
-    stmt = stmt.order_by(Gasto.data_emissao.desc()).offset((page - 1) * page_size).limit(page_size)
+    order_col = Gasto.data_emissao if sort_by == "data" else Gasto.valor
+    if sort_order == "desc":
+        stmt = stmt.order_by(order_col.desc())
+    else:
+        stmt = stmt.order_by(order_col.asc())
+        
+    stmt = stmt.offset((page - 1) * page_size).limit(page_size)
     
     result = await db.execute(stmt)
     items = []

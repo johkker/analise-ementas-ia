@@ -3,54 +3,45 @@
 ## Goal Description
 Build a robust political data analysis system that ingests data from the Câmara dos Deputados, stores it in a structured PostgreSQL database, and uses Generative AI (Gemini) to analyze legislative proposals for clarity, financial impact, and potential corruption risks.
 
-# Dashboard & Expense Exploration
+# Advanced Exploration & Deputy Insights
 
-Implement a more powerful dashboard focused on the current year and a dedicated exploration page for deep-diving into deputy spending.
+Expand the analysis capabilities with advanced time filters, better data performance (caching), and a unified deputy profile view.
 
 ## Proposed Changes
 
-### Backend: Statistics & Exploration
+### Backend: Advanced Queries
 ---
-#### [MODIFY] [stats.py](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/src/api/routes/stats.py)
-Update `/stats/dashboard` to:
-- Filter `total_gastos` by current year (2026).
-- Add `top_spenders` (top 5 deputies by total spending).
-- Add `expense_by_category` (aggregation by `tipo_despesa`).
+#### [MODIFY] [gastos.py](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/src/api/routes/gastos.py)
+- [DONE] Added `data_inicio` and `data_fim` to `/gastos/exploration`.
 
-#### [NEW] [gastos.py](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/src/api/routes/gastos.py)
-Create a new router for exploration:
-- `GET /gastos/exploration`: Paginated list of expenses with filters:
-    - `politico_id`
-    - `ano`
-    - `mes`
-    - `tipo_despesa`
-    - `min_valor` / `max_valor`
+#### [MODIFY] [deputados.py](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/src/api/routes/deputados.py)
+- Ensure a `GET /deputados/{id}/details` endpoint exists to aggregate:
+    - Recent Expenses.
+    - Voting History.
+    - Authorship of Propositions.
 
-### Frontend: UI/UX Improvements
+### Frontend: Performance & UX
 ---
-#### [MODIFY] [page.tsx](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/frontend/app/page.tsx)
-- **Stats Integration**: Update `DashboardStats` to fetch from `/stats/dashboard`.
-- **Top Spenders Widget**: Create a new component `TopSpendersList` with horizontal scrolling or a glassmorphic list.
-- **Spending By Category**: Implement a `CategoryMetric` component showing the top categories with progress bars (Emerald Green).
-- **Navigation**: Add a "Explorar Gastos" CTA card leading to the new exploration page.
+#### [MODIFY] [layout.tsx](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/frontend/app/layout.tsx)
+- Install and wrap the app in `@tanstack/react-query` provider for global caching.
 
-#### [NEW] [exploration/page.tsx](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/frontend/app/gastos/page.tsx)
-- **Filter Management**: Use URL state for persistent filtering.
-- **Expense Grid**: Cards showing `Suppliers`, `Date`, and `Value`.
-- **AI Ribbon**: A subtle emerald glow on cards that have `ai_resumo`.
-- **Modal View**: Clicking a card opens a modal with the receipt link and the full technical `AnaliseIA`.
-- **Infinite Scroll / Pagination**: Use the `total` and `page` parameters from the API.
+#### [MODIFY] [gastos/page.tsx](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/frontend/app/gastos/page.tsx)
+- Add a "Period" selector (Last 30 days, Specific month, Custom range).
+- Integrate a DateRangePicker component.
+
+#### [NEW] [DeputyDetails.tsx](file:///wsl.localhost/Ubuntu/home/johkker/analise-ementas-ia/frontend/components/deputados/DeputyDetailsModal.tsx)
+- A high-tech shadcn Dialog showing the full profile of a deputy.
+- Tabs for "Gastos", "Proposições" and "Frequência".
 
 ## Verification Plan
 
 ### Automated Tests
-- `npm run build` to ensure no regression in Next.js.
-- Verify API response for `/gastos/exploration` manually with various query params.
+- Test API throughput with caching headers.
+- Build test after adding react-query.
 
 ### Manual Verification
-- **Dashboard**: Confirm Top Spenders show photos and accurate 2026 totals.
-- **Exploration**: Verify filters (Party/Name) narrow down the list instantly.
-- **Aesthetics**: Ensure glassmorphism blur and Emerald accents match `MASTER.md`.
+- Filter expenses by a specific week in 2026.
+- Navigate to a deputy profile and open the modal from the dashboard.
 
 ## User Review Required
 No immediate user review required for proceed with initial file creation.
@@ -98,4 +89,19 @@ No immediate user review required for proceed with initial file creation.
 - Start services via `docker-compose up`.
 - Trigger ingestion endpoint via Swagger UI.
 - Verify data in Postgres using a client.
-- Check Celery worker logs for AI task execution.
+-## Deployment Plan (Vercel)
+
+### Pre-requisites
+- Backend deploy at Railway with fixed CORS regex.
+- Frontend `.env.local` set to production API.
+
+### Steps
+1. Push latest changes to GitHub (Manual or via Agent).
+2. Connect Vercel to the repository.
+3. Configure `NEXT_PUBLIC_API_URL` as a Production/Preview environment variable.
+4. Set the Root Directory to `frontend/`.
+5. Trigger initial deployment.
+
+### Production Verification
+- Verify that statistics fetch correctly from the Railway API.
+- Test deputy filters on the newly deployed Vercel domain.

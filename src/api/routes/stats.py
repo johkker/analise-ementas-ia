@@ -29,6 +29,7 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     # 3. Top 5 Spenders in 2026
     top_spenders_query = (
         select(
+            Politico.id,
             Politico.nome_parlamentar,
             Politico.foto_url,
             func.sum(Gasto.valor).label("total_gasto")
@@ -41,7 +42,7 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     )
     top_spenders_result = await db.execute(top_spenders_query)
     top_spenders = [
-        {"nome": r[0], "foto_url": r[1], "valor": float(r[2])} 
+        {"id": r[0], "nome": r[1], "foto_url": r[2], "valor": float(r[3])} 
         for r in top_spenders_result.all()
     ]
     

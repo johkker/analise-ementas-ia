@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
+import { Navbar } from "@/components/Navbar";
+import Providers from "@/components/providers";
 
 const outfit = Outfit({
   variable: "--font-heading",
@@ -16,8 +19,6 @@ export const metadata: Metadata = {
   description: "Análise inteligente de gastos e proposições da Câmara dos Deputados.",
 };
 
-import { Navbar } from "@/components/Navbar";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,14 +29,16 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${inter.variable} font-body bg-background text-foreground antialiased`}
       >
-        <div className="relative min-h-screen">
-          <Navbar />
-          {/* Dashboard Gradient Background */}
-          <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,#00A85915,transparent_50%)] pointer-events-none" />
-          <div className="relative z-10 pt-24 pb-12 px-6 max-w-7xl mx-auto">
-            {children}
+        <Providers>
+          <div className="relative min-h-screen">
+            <Navbar />
+            {/* Dashboard Gradient Background */}
+            <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,#00A85915,transparent_50%)] pointer-events-none" />
+            <div className="relative z-10 pt-24 pb-12 px-6 max-w-7xl mx-auto">
+              {children}
+            </div>
           </div>
-        </div>
+        </Providers>
       </body>
     </html>
   );

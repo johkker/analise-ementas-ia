@@ -21,3 +21,16 @@
     - [x] Update Dashboard Frontend with year-filtered data.
     - [x] Implement Expense Exploration Page with detailed filters.
     - [x] Add "Curiosity Cards" (Top spenders, anomalous clusters).
+
+- [x] Feature: Advanced Data Exploration & Deputy Insights
+    - [x] Extend `/gastos/exploration` with `data_inicio/fim` filters.
+    - [x] Implement Date Range Picker/Period Filter on Expenses page.
+    - [x] Implement Dynamic Sorting (Date/Value) on Expenses page.
+    - [x] Add React Query for robust frontend caching.
+    - [x] Create `/deputados` exploration page.
+    - [x] Implement `DeputyDetailsModal` (Expenses, Votes, Projects).
+
+- [/] Deployment & DevOps
+    - [/] Deploy Frontend to Vercel.
+    - [ ] Configure Environment Variables on Vercel Dashboard.
+    - [ ] Verify Production API Connectivity.

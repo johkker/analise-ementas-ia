@@ -15,6 +15,12 @@ I have successfully implemented the architecture described in `context.md`. The 
 ### 3. Database Schema
 - Implemented models for **Politicos**, **Gastos**, **Empresas**, **DLQ**, and **AnalisesIA** using SQLAlchemy 2.0 (Async).
 
+### 4. Frontend Performance & UX
+- **React Query Integration**: Implemented a global caching layer. Consecutive page visits and filter changes are now nearly instantaneous.
+- **Advanced Filtering & Sorting**: Added period and custom date range filters for expenses, along with dynamic sorting by date or value, allowing for precise and flexible parliamentary audits.
+- **Deputy Insights 360°**: Created a search page and a multi-tab profile modal. Users can now view spending, legislative projects, and bio info in a single unified view.
+- **Glassmorphic Design**: Refined the UI to a premium "Elite Dark" aesthetic with subtle gradients and high-tech micro-animations.
+
 ## How to Run
 
 ### 1. Database Migrations
