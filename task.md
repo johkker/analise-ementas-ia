@@ -1,10 +1,13 @@
 # Tasks
 
-- [x] Project Setup & Config
-- [x] Fix Module Loading Issues
-- [x] Database Layer Implementation
-- [x] Ingestion Pipeline Implementation
-- [x] Intelligence & Worker Implementation
+- [x] Debug and Fix Ingestion Errors
+    - [x] Fix multi-year range constraint (400 Bad Request)
+    - [x] Fix ForeignKey violations (Missing Politico IDs)
+    - [x] Implement 90-day chunking logic for 180+ day requests
+- [x] Implement Deputados Expenses Ingestion
+    - [x] Add `fetch_gastos_task` to `data_fetcher.py`
+    - [x] Fix `ResilienceIngestor` batch loop
+    - [x] Update `manual_ingest.py`
 - [x] API & Entrypoints
 - [x] Deployment Config
 - [x] Feature: Full Deputy Ingestion (Refined)
@@ -12,3 +15,9 @@
     - [x] Update `src/models/politico.py` with `id_legislatura`.
     - [x] Refine `ResilienceIngestor` with party linking and batch upserts.
     - [x] Verify population.
+- [x] Feature: Dashboard Improvements & Expense Exploration
+    - [x] Update `/stats/dashboard` to filter by current year.
+    - [x] Create `/gastos/exploration` API for filtering/searching.
+    - [x] Update Dashboard Frontend with year-filtered data.
+    - [x] Implement Expense Exploration Page with detailed filters.
+    - [x] Add "Curiosity Cards" (Top spenders, anomalous clusters).

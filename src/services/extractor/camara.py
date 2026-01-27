@@ -9,9 +9,15 @@ class CamaraExtractor(BaseExtractor):
         print(data)
         return data['dados']
 
-    async def get_gastos(self, deputado_id: int, ano: int = 2024):
+    async def get_gastos(self, deputado_id: int, ano: int = 2024, pagina: int = 1, itens: int = 100):
         endpoint = f"/deputados/{deputado_id}/despesas"
-        params = {"ano": ano, "ordem": "ASC", "ordenarPor": "dataDocumento"}
+        params = {
+            "ano": ano, 
+            "pagina": pagina,
+            "itens": itens,
+            "ordem": "ASC", 
+            "ordenarPor": "dataDocumento"
+        }
         data = await self.fetch_raw_data(endpoint, params=params)
         return data['dados']
 

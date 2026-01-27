@@ -40,5 +40,10 @@ celery_app.conf.beat_schedule = {
         'task': 'src.services.data_fetcher.fetch_votacoes_task',
         'schedule': crontab(hour=3, minute=0),
         'args': (7,) 
+    },
+    'analyze-gastos-periodic': {
+        'task': 'src.services.ai_worker.mass_analyze_pending_gastos',
+        'schedule': crontab(minute='*/15'), # Run every 15 mins
+        'args': (2,) # Analyze 2 items per run (total 192/day max if 1.5 flash, or respects 20 RPD better)
     }
 }

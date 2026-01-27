@@ -19,7 +19,7 @@ class ResilienceIngestor:
         valid_empresas = {} # cnpj: data
         dlq_records = []
 
-        for raw_item in raw_data_list[:1]:
+        for raw_item in raw_data_list:
             try:
                 validated_item = StrictGastoSchema(**raw_item)
                 

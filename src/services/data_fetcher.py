@@ -5,6 +5,9 @@ from src.core.database import AsyncSessionLocal
 from src.services.extractor.camara import CamaraExtractor
 from src.services.resilience_ingestor import ResilienceIngestor
 
+from sqlalchemy import select
+from src.models.politico import Politico
+
 @celery_app.task(bind=True, max_retries=3)
 def fetch_deputados_task(self):
     asyncio.run(_async_fetch_deputados())
@@ -24,6 +27,54 @@ async def _async_fetch_deputados():
     except Exception as e:
         print(f"Error fetching deputados: {e}")
         raise
+
+@celery_app.task(bind=True, max_retries=3)
+def fetch_gastos_task(self, ano: int = None):
+    if ano is None:
+        ano = datetime.now().year
+    asyncio.run(_async_fetch_all_gastos(ano))
+
+async def _async_fetch_all_gastos(ano: int):
+    extractor = CamaraExtractor()
+    
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(Politico.id))
+        politico_ids = [row[0] for row in result.all()]
+    
+    print(f"Starting expense fetching for {len(politico_ids)} deputies for year {ano}")
+    
+    async def fetch_for_deputy(pid):
+        try:
+            pagina = 1
+            total_ingested = 0
+            while True:
+                raw_gastos = await extractor.get_gastos(pid, ano, pagina=pagina, itens=100)
+                if not raw_gastos:
+                    break
+                    
+                async with AsyncSessionLocal() as db:
+                    ingestor = ResilienceIngestor(db)
+                    await ingestor.process_gastos_batch(pid, raw_gastos)
+                
+                total_ingested += len(raw_gastos)
+                pagina += 1
+                if pagina > 50: # Safety break
+                    break
+            
+            if total_ingested > 0:
+                print(f"  - Ingested {total_ingested} expenses for deputy {pid}")
+        except Exception as e:
+            print(f"Error fetching expenses for deputy {pid}: {e}")
+
+    # Use a semaphore to control concurrency and avoid hitting rate limits or DB connection limits too hard
+    sem = asyncio.Semaphore(10)
+
+    async def throttled_fetch(pid):
+        async with sem:
+            await fetch_for_deputy(pid)
+
+    tasks = [throttled_fetch(pid) for pid in politico_ids]
+    await asyncio.gather(*tasks)
 
 @celery_app.task(bind=True, max_retries=3)
 def fetch_proposicoes_task(self, days_back: int = 7):
@@ -74,8 +125,8 @@ async def _async_fetch_proposicoes(days_back: int):
                 
                 print(f"✅ Processed page {pagina} with {len(raw_data)} propositions")
                 pagina += 1
-                if pagina > 5:
-                    print("Reached page limit (5).")
+                if pagina > 50:
+                    print("Reached page limit (50).")
                     break
                 
         except Exception as e:
@@ -130,8 +181,8 @@ async def _async_fetch_votacoes(days_back: int):
                     
                 print(f"✅ Processed page {pagina} with {len(raw_data)} votacoes")
                 pagina += 1
-                if pagina > 5: 
-                    print("Reached page limit (5).")
+                if pagina > 50: 
+                    print("Reached page limit (50).")
                     break
 
         except Exception as e:

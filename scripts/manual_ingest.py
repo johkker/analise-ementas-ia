@@ -26,6 +26,14 @@ def main():
         fetch_deputados_task.delay()
         print("Task queued!")
         
+    elif target == "gastos":
+        from datetime import datetime
+        ano = int(sys.argv[2]) if len(sys.argv) > 2 else datetime.now().year
+        print(f"Triggering fetch_gastos_task for year {ano}...")
+        from src.services.data_fetcher import fetch_gastos_task
+        fetch_gastos_task.delay(ano=ano)
+        print("Task queued!")
+        
     else:
         print("Unknown target. Use 'proposicoes', 'votacoes' or 'deputados'.")
 
