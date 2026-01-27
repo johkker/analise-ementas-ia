@@ -5,7 +5,15 @@ from src.services.extractor.camara import CamaraExtractor
 from src.services.resilience_ingestor import ResilienceIngestor
 from src.services.ai_worker import processar_analise_ia
 
+from src.api.routes import deputados, proposicoes, stats
+from src.core.security import rate_limiter
+
 app = FastAPI(title="Lupa Política API")
+
+# Register Routers with Rate Limiting
+app.include_router(deputados.router, dependencies=[Depends(rate_limiter)])
+app.include_router(proposicoes.router, dependencies=[Depends(rate_limiter)])
+app.include_router(stats.router, dependencies=[Depends(rate_limiter)])
 
 @app.get("/")
 async def root():
