@@ -1,28 +1,8 @@
-version: '3.8'
-
 services:
-  # db:
-  #   image: postgres:15-alpine
-  #   container_name: lupa_db
-  #   environment:
-  #     POSTGRES_USER: user
-  #     POSTGRES_PASSWORD: password
-  #     POSTGRES_DB: lupa_politica
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: lupa_redis
-  #   ports:
-  #     - "6379:6379"
-
   api:
     build: .
     container_name: lupa_api
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
     volumes:
       - .:/app
     ports:
@@ -41,7 +21,7 @@ services:
   worker:
     build: .
     container_name: lupa_worker
-    command: watchmedo auto-restart --directory=./src --pattern="*.py" --recursive -- celery -A src.core.celery_app worker --loglevel=info -Q ai_queue --concurrency=2
+    command: celery -A src.core.celery_app worker --loglevel=info -Q ai_queue --concurrency=2
     volumes:
       - .:/app
     environment:
@@ -87,6 +67,3 @@ services:
       - REDIS_URL=${REDIS_URL}
     depends_on:
       - worker
-
-volumes:
-  postgres_data:
