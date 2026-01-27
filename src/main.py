@@ -17,7 +17,7 @@ app = FastAPI(title="Lupa Política API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In development, allows all. For production, restrict this.
+    allow_origin_regex="https?://.*", # Required for allow_credentials=True with multiple origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
