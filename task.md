@@ -1,22 +1,14 @@
 # Tasks
 
 - [x] Project Setup & Config
-    - [x] Create `pyproject.toml` (Poetry) with dependencies
-    - [x] Create `docker-compose.yml` for Postgres, Redis, Worker, Flower.
-    - [x] Setup `src/` directory structure (`core`, `models`, `schemas`, `services`, `main.py`, `worker.py`).
+- [x] Fix Module Loading Issues
 - [x] Database Layer Implementation
-    - [x] Implement `core/database.py` (Async engine/session).
-    - [x] Implement `models/politico.py`, `models/gasto.py`, `models/dlq.py`, `models/analise.py`.
-    - [ ] Configure and create initial Alembic migration.
 - [x] Ingestion Pipeline Implementation
-    - [x] Implement `schemas/camara_api.py` and strictly typed schemas (`StrictGastoSchema`).
-    - [x] Implement `services/extractor/base.py` and `camara.py`.
-    - [x] Implement `services/loader.py` (Merged into ResilicenceIngestor).
-    - [x] Implement `services/resilience_ingestor.py` (DLQ logic).
 - [x] Intelligence & Worker Implementation
-    - [x] Configure `core/celery_app.py`.
-    - [x] Implement `services/llm_service.py` (Gemini Client with Structured Output).
-    - [x] Implement `services/ai_worker.py` (Celery Tasks).
 - [x] API & Entrypoints
-    - [x] Implement `main.py` (FastAPI App).
-    - [x] Implement ingestion trigger mechanism.
+- [x] Deployment Config
+- [x] Feature: Full Deputy Ingestion (Refined)
+    - [x] Update `src/schemas/camara_api.py` for full Deputado data.
+    - [x] Update `src/models/politico.py` with `id_legislatura`.
+    - [x] Refine `ResilienceIngestor` with party linking and batch upserts.
+    - [x] Verify population.

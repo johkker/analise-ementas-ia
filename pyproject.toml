@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Análise de gastos e proposições de políticos usando IA"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+package-mode = false
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
@@ -16,14 +17,17 @@ pydantic = {extras = ["email"], version = "^2.6.1"}
 pydantic-settings = "^2.1.0"
 celery = "^5.3.6"
 redis = "^5.0.1"
-google-generativeai = "^0.3.2"
+google-generativeai = "^0.8.2"
 loguru = "^0.7.2"
 asyncpg = "^0.29.0"
 httpx = "^0.26.0"
+flower = "^2.0.1"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 pytest-asyncio = "^0.23.5"
+watchdog = {extras = ["watchmedo"], version = "^4.0.0"}
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,0 +1,55 @@
+[2026-01-27 15:49:46,850: INFO/ForkPoolWorker-2] BEGIN (implicit)
+
+2026-01-27 15:49:46,850 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+
+2026-01-27 15:49:46,851 INFO sqlalchemy.engine.Engine INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at
+
+2026-01-27 15:49:46,851 INFO sqlalchemy.engine.Engine [cached since 96.97s ago] ('GASTO', None, Decimal('0.9'), 'Despesa de R$ 322,73 realizada em posto de combustíveis em Brasília para manutenção de atividade parlamentar. O valor é compatível com o abastecimento de um tanque de veículo de passeio ou utilitário. O gasto integra a Cota para Exercício da Atividade Parlamentar (CEAP).', 'BAIXO', '["Setor de combust\\u00edveis", "Transporte e log\\u00edstica"]', 'Risco de desvio de finalidade caso o combustível seja utilizado em veículos não vinculados ao mandato ou para fins estritamente pessoais. A falta de detalhamento da placa do veículo e da quilometragem no registro dificulta a fiscalização da eficiência do gasto.', '{"resumo_executivo": "Despesa de R$ 322,73 realizada em posto de combust\\u00edveis em Bras\\u00edlia para manuten\\u00e7\\u00e3o de atividade parlam ... (525 characters truncated) ... laca do ve\\u00edculo e da quilometragem no registro dificulta a fiscaliza\\u00e7\\u00e3o da efici\\u00eancia do gasto.", "sentimento_politico": 0.9}')
+
+2026-01-27 15:49:46,852 INFO sqlalchemy.engine.Engine ROLLBACK
+
+[2026-01-27 15:49:46,851: INFO/ForkPoolWorker-2] INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at
+
+[2026-01-27 15:49:46,851: INFO/ForkPoolWorker-2] [cached since 96.97s ago] ('GASTO', None, Decimal('0.9'), 'Despesa de R$ 322,73 realizada em posto de combustíveis em Brasília para manutenção de atividade parlamentar. O valor é compatível com o abastecimento de um tanque de veículo de passeio ou utilitário. O gasto integra a Cota para Exercício da Atividade Parlamentar (CEAP).', 'BAIXO', '["Setor de combust\\u00edveis", "Transporte e log\\u00edstica"]', 'Risco de desvio de finalidade caso o combustível seja utilizado em veículos não vinculados ao mandato ou para fins estritamente pessoais. A falta de detalhamento da placa do veículo e da quilometragem no registro dificulta a fiscalização da eficiência do gasto.', '{"resumo_executivo": "Despesa de R$ 322,73 realizada em posto de combust\\u00edveis em Bras\\u00edlia para manuten\\u00e7\\u00e3o de atividade parlam ... (525 characters truncated) ... laca do ve\\u00edculo e da quilometragem no registro dificulta a fiscaliza\\u00e7\\u00e3o da efici\\u00eancia do gasto.", "sentimento_politico": 0.9}')
+
+[2026-01-27 15:49:46,852: INFO/ForkPoolWorker-2] ROLLBACK
+
+[2026-01-27 15:49:46,852: WARNING/ForkPoolWorker-2] Erro no worker: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+
+[SQL: INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at]
+
+[parameters: ('GASTO', None, Decimal('0.9'), 'Despesa de R$ 322,73 realizada em posto de combustíveis em Brasília para manutenção de atividade parlamentar. O valor é compatível com o abastecimento de um tanque de veículo de passeio ou utilitário. O gasto integra a Cota para Exercício da Atividade Parlamentar (CEAP).', 'BAIXO', '["Setor de combust\\u00edveis", "Transporte e log\\u00edstica"]', 'Risco de desvio de finalidade caso o combustível seja utilizado em veículos não vinculados ao mandato ou para fins estritamente pessoais. A falta de detalhamento da placa do veículo e da quilometragem no registro dificulta a fiscalização da eficiência do gasto.', '{"resumo_executivo": "Despesa de R$ 322,73 realizada em posto de combust\\u00edveis em Bras\\u00edlia para manuten\\u00e7\\u00e3o de atividade parlam ... (525 characters truncated) ... laca do ve\\u00edculo e da quilometragem no registro dificulta a fiscaliza\\u00e7\\u00e3o da efici\\u00eancia do gasto.", "sentimento_politico": 0.9}')]
+
+(Background on this error at: https://sqlalche.me/e/20/rvf5)⁠
+
+[2026-01-27 15:49:47,523: INFO/ForkPoolWorker-2] Task src.services.ai_worker.processar_analise_ia[bb4513ac-12c0-4f88-b793-7b9179997abe] retry: Retry in 127s: InterfaceError("(sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress")
+
+[2026-01-27 15:49:48,360: INFO/MainProcess] Task src.services.ai_worker.processar_analise_ia[bb4513ac-12c0-4f88-b793-7b9179997abe] received
+
+[2026-01-27 15:49:53,586: INFO/ForkPoolWorker-1] BEGIN (implicit)
+
+2026-01-27 15:49:53,586 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+
+2026-01-27 15:49:53,587 INFO sqlalchemy.engine.Engine INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at
+
+2026-01-27 15:49:53,587 INFO sqlalchemy.engine.Engine [cached since 98.46s ago] ('GASTO', None, Decimal('0.15'), 'O gasto de 12 mil reais destina-se à divulgação de atividades do mandato parlamentar através da empresa Discover Serviços Ltda. Esta categoria de des ... (17 characters truncated) ...  no uso da cota parlamentar para manutenção da visibilidade política. A análise foca na proporcionalidade do valor em relação aos serviços prestados.', 'MEDIO', '["Empresas de comunica\\u00e7\\u00e3o", "Ag\\u00eancias de marketing", "Assessoria de imprensa"]', 'Riscos associados à contratação de serviços imateriais, onde a comprovação da execução efetiva e a aferição de preços de mercado são complexas, possibilitando potenciais desvios ou superfaturamento.', '{"resumo_executivo": "O gasto de 12 mil reais destina-se \\u00e0 divulga\\u00e7\\u00e3o de atividades do mandato parlamentar atrav\\u00e9s da empresa ... (594 characters truncated) ... \\u00e7\\u00e3o de pre\\u00e7os de mercado s\\u00e3o complexas, possibilitando potenciais desvios ou superfaturamento.", "sentimento_politico": 0.15}')
+
+[2026-01-27 15:49:53,587: INFO/ForkPoolWorker-1] INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at
+
+[2026-01-27 15:49:53,587: INFO/ForkPoolWorker-1] [cached since 98.46s ago] ('GASTO', None, Decimal('0.15'), 'O gasto de 12 mil reais destina-se à divulgação de atividades do mandato parlamentar através da empresa Discover Serviços Ltda. Esta categoria de des ... (17 characters truncated) ...  no uso da cota parlamentar para manutenção da visibilidade política. A análise foca na proporcionalidade do valor em relação aos serviços prestados.', 'MEDIO', '["Empresas de comunica\\u00e7\\u00e3o", "Ag\\u00eancias de marketing", "Assessoria de imprensa"]', 'Riscos associados à contratação de serviços imateriais, onde a comprovação da execução efetiva e a aferição de preços de mercado são complexas, possibilitando potenciais desvios ou superfaturamento.', '{"resumo_executivo": "O gasto de 12 mil reais destina-se \\u00e0 divulga\\u00e7\\u00e3o de atividades do mandato parlamentar atrav\\u00e9s da empresa ... (594 characters truncated) ... \\u00e7\\u00e3o de pre\\u00e7os de mercado s\\u00e3o complexas, possibilitando potenciais desvios ou superfaturamento.", "sentimento_politico": 0.15}')
+
+[2026-01-27 15:49:53,588: INFO/ForkPoolWorker-1] ROLLBACK
+
+2026-01-27 15:49:53,588 INFO sqlalchemy.engine.Engine ROLLBACK
+
+[2026-01-27 15:49:53,588: WARNING/ForkPoolWorker-1] Erro no worker: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+
+[SQL: INSERT INTO analises_ia (entidade_tipo, entidade_id, score_anomalia, resumo_critico, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, raw_response) VALUES ($1::VARCHAR, $2::INTEGER, $3::NUMERIC(3, 2), $4::VARCHAR, $5::VARCHAR, $6::JSON, $7::VARCHAR, $8::JSON) RETURNING analises_ia.id, analises_ia.created_at, analises_ia.updated_at]
+
+[parameters: ('GASTO', None, Decimal('0.15'), 'O gasto de 12 mil reais destina-se à divulgação de atividades do mandato parlamentar através da empresa Discover Serviços Ltda. Esta categoria de des ... (17 characters truncated) ...  no uso da cota parlamentar para manutenção da visibilidade política. A análise foca na proporcionalidade do valor em relação aos serviços prestados.', 'MEDIO', '["Empresas de comunica\\u00e7\\u00e3o", "Ag\\u00eancias de marketing", "Assessoria de imprensa"]', 'Riscos associados à contratação de serviços imateriais, onde a comprovação da execução efetiva e a aferição de preços de mercado são complexas, possibilitando potenciais desvios ou superfaturamento.', '{"resumo_executivo": "O gasto de 12 mil reais destina-se \\u00e0 divulga\\u00e7\\u00e3o de atividades do mandato parlamentar atrav\\u00e9s da empresa ... (594 characters truncated) ... \\u00e7\\u00e3o de pre\\u00e7os de mercado s\\u00e3o complexas, possibilitando potenciais desvios ou superfaturamento.", "sentimento_politico": 0.15}')]
+
+(Background on this error at: https://sqlalche.me/e/20/rvf5)⁠
+
+[2026-01-27 15:49:54,440: INFO/MainProcess] Task src.services.ai_worker.processar_analise_ia[8626cf79-9a14-4a04-aea8-97eb68e6d794] received
+
+[2026-01-27 15:49:54,623: INFO/ForkPoolWorker-1] Task src.services.ai_worker.processar_analise_ia[8626cf79-9a14-4a04-aea8-97eb68e6d794] retry: Retry in 59s: InterfaceError("(sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress")

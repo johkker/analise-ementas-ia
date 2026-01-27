@@ -23,6 +23,13 @@ class Politico(Base, TimestampMixin):
     uf: Mapped[str] = mapped_column(String(2))
     email: Mapped[str | None] = mapped_column(String(255))
     foto_url: Mapped[str | None] = mapped_column(String(500))
+    id_legislatura: Mapped[int | None] = mapped_column()
     
     partido: Mapped["Partido"] = relationship(back_populates="politicos")
     gastos: Mapped[List["Gasto"]] = relationship(back_populates="politico")
+    votos: Mapped[List["Voto"]] = relationship(back_populates="politico")
+    
+    proposicoes: Mapped[List["Proposicao"]] = relationship(
+        secondary="autoria_proposicao",
+        back_populates="autores"
+    )

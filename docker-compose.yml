@@ -1,23 +1,23 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: lupa_db
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: lupa_politica
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: lupa_db
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: lupa_politica
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
 
-  redis:
-    image: redis:7-alpine
-    container_name: lupa_redis
-    ports:
-      - "6379:6379"
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: lupa_redis
+  #   ports:
+  #     - "6379:6379"
 
   api:
     build: .
@@ -28,37 +28,65 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/lupa_politica
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    depends_on:
-      - db
-      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   worker:
     build: .
     container_name: lupa_worker
-    command: celery -A src.core.celery_app worker --loglevel=info -Q ai_queue --concurrency=2
+    command: watchmedo auto-restart --directory=./src --pattern="*.py" --recursive -- celery -A src.core.celery_app worker --loglevel=info -Q ai_queue --concurrency=2
     volumes:
       - .:/app
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/lupa_politica
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    depends_on:
-      - redis
-      - db
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A src.core.celery_app inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   flower:
-    image: mher/flower
+    build: .
     container_name: lupa_flower
-    command: celery -A src.core.celery_app flower
+    command: celery -A src.core.celery_app flower --port=5555
+    volumes:
+      - .:/app
     ports:
       - "5555:5555"
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${REDIS_URL}
     depends_on:
-      - redis
+      - worker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  beat:
+    build: .
+    container_name: lupa_beat
+    command: celery -A src.core.celery_app beat --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - worker
 
 volumes:
   postgres_data:
