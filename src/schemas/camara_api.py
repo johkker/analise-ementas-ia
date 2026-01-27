@@ -50,7 +50,7 @@ class VotacaoSchema(BaseModel):
     id: str
     uri: str
     data: Optional[datetime] = None
-    data: Optional[datetime] = None
+    data_registro: Optional[datetime] = Field(None, alias="dataHoraRegistro")
     sigla_orgao: str = Field(alias="siglaOrgao")
     aprovacao: Optional[int] = None
     descricao: str

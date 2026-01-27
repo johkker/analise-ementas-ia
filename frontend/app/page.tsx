@@ -1,9 +1,33 @@
-import { ArrowUpRight, TrendingUp, AlertTriangle, ShieldCheck, DollarSign } from "lucide-react";
+import { ArrowUpRight, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchAPI, endpoints } from "@/lib/api";
+import Link from "next/link";
 
-export default function Home() {
+async function getStats() {
+  try {
+    return await fetchAPI(endpoints.stats);
+  } catch (error) {
+    console.error("Failed to fetch statistics:", error);
+    return null;
+  }
+}
+
+async function getFeaturedProposicao() {
+  try {
+    const proposicoes = await fetchAPI(`${endpoints.proposicoes}?limit=1`);
+    return proposicoes[0] || null;
+  } catch (error) {
+    console.error("Failed to fetch proposições:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  const stats = await getStats();
+  const featured = await getFeaturedProposicao();
+
   return (
     <main className="space-y-12">
       {/* Hero Section */}
@@ -18,12 +42,16 @@ export default function Home() {
           Analisamos cada gasto, voto e projeto de lei da Câmara dos Deputados usando IA para identificar riscos, economia e impacto na sua vida.
         </p>
         <div className="flex items-center justify-center gap-4 pt-4">
-          <Button size="lg" className="rounded-full px-8 h-14 text-lg font-bold shadow-xl shadow-emerald-500/20">
-            Explorar Deputados
-          </Button>
-          <Button size="lg" variant="outline" className="rounded-full px-8 h-14 text-lg font-bold glass">
-            Ver Proposições
-          </Button>
+          <Link href="/deputados">
+            <Button size="lg" className="rounded-full px-8 h-14 text-lg font-bold shadow-xl shadow-emerald-500/20">
+              Explorar Deputados
+            </Button>
+          </Link>
+          <Link href="/proposicoes">
+            <Button size="lg" variant="outline" className="rounded-full px-8 h-14 text-lg font-bold glass">
+              Ver Proposições
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -31,45 +59,51 @@ export default function Home() {
       <div className="grid md:grid-cols-3 gap-6">
         <Card className="glass group cursor-pointer hover:border-primary/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Economia Identificada</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Gastos Totais</CardTitle>
             <div className="p-2 rounded-lg bg-emerald-500/10 text-primary">
               <TrendingUp className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black font-heading tabular-nums">R$ 1.2M</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-primary font-bold">+12%</span> em relação ao mês anterior
+            <div className="text-4xl font-black font-heading tabular-nums">
+              {stats ? `R$ ${(stats.total_gastos / 1000000).toFixed(1)}M` : "---"}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Volume total processado pela plataforma
             </p>
           </CardContent>
         </Card>
 
         <Card className="glass group cursor-pointer hover:border-red-500/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Alertas de Risco</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Proposições Analisadas</CardTitle>
             <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
               <AlertTriangle className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black font-heading tabular-nums">24</div>
+            <div className="text-4xl font-black font-heading tabular-nums">
+              {stats?.total_proposicoes || "---"}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Proposições com indícios de irregularidade
+              Projetos monitorados em tempo real
             </p>
           </CardContent>
         </Card>
 
         <Card className="glass group cursor-pointer hover:border-blue-500/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Análises Realizadas</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Deputados Ativos</CardTitle>
             <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
               <ShieldCheck className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black font-heading tabular-nums">458</div>
+            <div className="text-4xl font-black font-heading tabular-nums">
+              {stats?.total_politicos || "---"}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Processadas por Gemini AI este mês
+              Representantes com dados consolidados
             </p>
           </CardContent>
         </Card>
@@ -79,35 +113,43 @@ export default function Home() {
       <div className="grid lg:grid-cols-2 gap-8 items-center pt-8">
         <div className="space-y-6">
           <h2 className="text-4xl font-heading font-black leading-none">
-            Análise em Destaque
+            Última Análise
           </h2>
-          <Card className="glass border-emerald-500/20 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4">
-               <Badge className="bg-primary text-primary-foreground font-bold">ECONOMIA</Badge>
-            </div>
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold pr-20">PL 1234/2024 - Reforma Tributária Administrativa</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground leading-relaxed">
-                Nossa IA identificou uma sobreposição de cargos que, se ajustada conforme a emenda 04, pode gerar uma economia direta de <span className="text-primary font-bold">R$ 450.000,00</span> anuais.
-              </p>
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <div className="flex items-center gap-4 text-sm font-bold">
-                  <span className="flex items-center gap-1 text-primary"><ShieldCheck className="w-4 h-4" /> Gemini Analysis</span>
-                  <span className="text-muted-foreground">Confiança: 98%</span>
-                </div>
-                <Button variant="link" className="text-primary font-bold flex items-center gap-1">
-                  Ver Detalhes <ArrowUpRight className="w-4 h-4" />
-                </Button>
+          {featured ? (
+            <Card className="glass border-emerald-500/20 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4">
+                 <Badge className="bg-primary text-primary-foreground font-bold">RECENTE</Badge>
               </div>
-            </CardContent>
-          </Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold pr-20">{featured.sigla_tipo} {featured.numero}/{featured.ano}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                  {featured.ementa}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div className="flex items-center gap-4 text-sm font-bold">
+                    <span className="flex items-center gap-1 text-primary"><ShieldCheck className="w-4 h-4" /> AI Monitor</span>
+                    <span className="text-muted-foreground">Câmara API</span>
+                  </div>
+                  <Link href={`/proposicoes/${featured.id}`}>
+                    <Button variant="link" className="text-primary font-bold flex items-center gap-1">
+                      Analisar <ArrowUpRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="h-48 glass rounded-2xl flex items-center justify-center text-muted-foreground animate-pulse">
+              Carregando proposição em destaque...
+            </div>
+          )}
         </div>
 
         <div className="relative aspect-video glass rounded-3xl flex items-center justify-center overflow-hidden">
            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-           <p className="text-muted-foreground font-medium animate-pulse">Visualização de Gastos (Gráfico em breve)</p>
+           <p className="text-muted-foreground font-medium animate-pulse">Visualização Geográfica (Mapa em breve)</p>
         </div>
       </div>
     </main>

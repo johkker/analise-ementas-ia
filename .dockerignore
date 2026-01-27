@@ -1,0 +1,54 @@
+# Hidden folders from AI agents
+.*
+.git
+.github
+.agent
+.agents
+.cursor
+.gemini
+.cline
+.roo
+.trae
+.windsurf
+.claude
+.continue
+.codex
+.codebuddy
+.commandcode
+.crush
+.factory
+.goose
+.kilocode
+.kiro
+.mcpjam
+.mux
+.neovate
+.opencode
+.openhands
+.pi
+.qoder
+.qwen
+.zencoder
+
+# Frontend
+frontend/
+node_modules/
+**/node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.env
+
+# Workspace data
+design-system/
+skills/
+api-docs.json
+celerybeat-schedule
+error.worker.txt
+*.log

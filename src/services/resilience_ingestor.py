@@ -214,7 +214,21 @@ class ResilienceIngestor:
             if all_authors:
                 # Deduplicate tuples
                 unique_authors = [dict(t) for t in {tuple(d.items()) for d in all_authors}]
-                await self.session.execute(insert(autoria_proposicao).values(unique_authors))
+                
+                # SAFETY: Filter out politico_id not in DB to avoid FK violation
+                from src.models.politico import Politico
+                from sqlalchemy import select
+                
+                politico_ids = {a['politico_id'] for a in unique_authors}
+                existing_politicos = await self.session.execute(
+                    select(Politico.id).where(Politico.id.in_(politico_ids))
+                )
+                existing_ids = {row[0] for row in existing_politicos.all()}
+                
+                final_authors = [a for a in unique_authors if a['politico_id'] in existing_ids]
+                
+                if final_authors:
+                    await self.session.execute(insert(autoria_proposicao).values(final_authors))
 
         if dlq_records:
             await self._bulk_insert_dlq(dlq_records)
@@ -296,7 +310,20 @@ class ResilienceIngestor:
             await self.session.execute(delete(Voto).where(Voto.votacao_id.in_(votacao_ids_to_clean)))
             
         if all_votos:
-            await self.session.execute(insert(Voto).values(all_votos))
+            # SAFETY: Filter out politico_id not in DB
+            from src.models.politico import Politico
+            from sqlalchemy import select
+            
+            politico_ids = {v['politico_id'] for v in all_votos}
+            existing_politicos = await self.session.execute(
+                select(Politico.id).where(Politico.id.in_(politico_ids))
+            )
+            existing_ids = {row[0] for row in existing_politicos.all()}
+            
+            final_votos = [v for v in all_votos if v['politico_id'] in existing_ids]
+            
+            if final_votos:
+                await self.session.execute(insert(Voto).values(final_votos))
         
         if dlq_records:
             await self._bulk_insert_dlq(dlq_records)

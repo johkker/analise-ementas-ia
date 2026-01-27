@@ -27,6 +27,10 @@ celery_app.conf.update(
 
 from celery.schedules import crontab
 celery_app.conf.beat_schedule = {
+    'fetch-deputados-weekly': {
+        'task': 'src.services.data_fetcher.fetch_deputados_task',
+        'schedule': crontab(day_of_week='sun', hour=1, minute=0),
+    },
     'fetch-proposicoes-daily': {
         'task': 'src.services.data_fetcher.fetch_proposicoes_task',
         'schedule': crontab(hour=2, minute=0),

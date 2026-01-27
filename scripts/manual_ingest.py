@@ -20,8 +20,14 @@ def main():
         fetch_votacoes_task.delay(days_back=days_back)
         print("Task queued! Check Celery logs.")
         
+    elif target == "deputados":
+        print("Triggering fetch_deputados_task...")
+        from src.services.data_fetcher import fetch_deputados_task
+        fetch_deputados_task.delay()
+        print("Task queued!")
+        
     else:
-        print("Unknown target. Use 'proposicoes' or 'votacoes'.")
+        print("Unknown target. Use 'proposicoes', 'votacoes' or 'deputados'.")
 
 if __name__ == "__main__":
     main()
