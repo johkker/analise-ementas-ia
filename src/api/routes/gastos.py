@@ -105,3 +105,12 @@ async def get_gastos_exploration(
         "page_size": page_size,
         "items": items
     }
+
+@router.get("/tipos-despesa/")
+async def list_tipos_despesa(db: AsyncSession = Depends(get_db)):
+    """Fetch all distinct expense types for filter dropdowns"""
+    query = select(Gasto.tipo_despesa).distinct().where(Gasto.tipo_despesa.isnot(None)).order_by(Gasto.tipo_despesa)
+    result = await db.execute(query)
+    tipos = result.scalars().all()
+    
+    return [{"tipo": tipo} for tipo in tipos if tipo]

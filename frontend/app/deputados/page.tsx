@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { 
   Users, 
   Search, 
@@ -87,6 +87,15 @@ export default function DeputadosPage() {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const { data: partidosData } = useQuery({
+    queryKey: ['partidos'],
+    queryFn: () => fetchAPI('/deputados/partidos/'),
+    staleTime: 5 * 24 * 60 * 60 * 1000, // 5 days in milliseconds
+    gcTime: 5 * 24 * 60 * 60 * 1000, // 5 days cache
+  });
+
+  const partidos = partidosData || [];
+
   return (
     <div className="space-y-8 pb-20 pt-8">
       <div className="flex flex-col space-y-4 text-center items-center">
@@ -117,12 +126,9 @@ export default function DeputadosPage() {
             className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-sm appearance-none glass-hover cursor-pointer outline-none focus:ring-2 focus:ring-primary/50"
           >
             <option value="all" className="bg-slate-900">Todos os Partidos</option>
-            <option value="PT" className="bg-slate-900">PT</option>
-            <option value="PL" className="bg-slate-900">PL</option>
-            <option value="PP" className="bg-slate-900">PP</option>
-            <option value="UNIÃO" className="bg-slate-900">UNIÃO</option>
-            <option value="MDB" className="bg-slate-900">MDB</option>
-            <option value="PSD" className="bg-slate-900">PSD</option>
+            {partidos.map((p: any) => (
+              <option key={p.id} value={p.sigla} className="bg-slate-900">{p.sigla}</option>
+            ))}
           </select>
 
           <select 
@@ -196,6 +202,16 @@ export default function DeputadosPage() {
            <p className="text-muted-foreground font-medium">Nenhum deputado encontrado com esses critérios.</p>
         </div>
       )}
+
+      {/* Infinite scroll trigger */}
+      <div ref={observerTarget} className="h-20 flex items-center justify-center">
+        {isFetchingNextPage && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-medium">Carregando mais deputados...</span>
+          </div>
+        )}
+      </div>
 
       <DeputyDetailsModal 
         deputadoId={selectedId}

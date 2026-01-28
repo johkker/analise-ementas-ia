@@ -49,6 +49,26 @@ export default function GastosExploration() {
     },
   });
 
+  // Fetch expense types with 5-day cache
+  const { data: tiposData } = useQuery({
+    queryKey: ['tipos-despesa'],
+    queryFn: () => fetchAPI('/gastos/tipos-despesa/'),
+    staleTime: 5 * 24 * 60 * 60 * 1000, // 5 days
+    gcTime: 5 * 24 * 60 * 60 * 1000, // 5 days cache
+  });
+
+  const tiposDespesa = tiposData || [];
+
+  // Fetch partidos with 5-day cache
+  const { data: partidosData } = useQuery({
+    queryKey: ['partidos'],
+    queryFn: () => fetchAPI('/deputados/partidos/'),
+    staleTime: 5 * 24 * 60 * 60 * 1000, // 5 days
+    gcTime: 5 * 24 * 60 * 60 * 1000, // 5 days cache
+  });
+
+  const partidos = partidosData || [];
+
   const items = data?.items || [];
   const total = data?.total || 0;
 
@@ -111,13 +131,9 @@ export default function GastosExploration() {
             className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none glass-hover cursor-pointer"
           >
             <option value="all" className="bg-slate-900">Todos os Partidos</option>
-            <option value="PT" className="bg-slate-900">PT</option>
-            <option value="PL" className="bg-slate-900">PL</option>
-            <option value="PP" className="bg-slate-900">PP</option>
-            <option value="UNIÃO" className="bg-slate-900">UNIÃO</option>
-            <option value="MDB" className="bg-slate-900">MDB</option>
-            <option value="PSD" className="bg-slate-900">PSD</option>
-            <option value="PSOL" className="bg-slate-900">PSOL</option>
+            {partidos.map((p: any) => (
+              <option key={p.id} value={p.sigla} className="bg-slate-900">{p.sigla}</option>
+            ))}
           </select>
 
           <select 
@@ -161,12 +177,9 @@ export default function GastosExploration() {
             className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none glass-hover cursor-pointer"
           >
             <option value="all" className="bg-slate-900">Todos os Tipos</option>
-            <option value="COMBUSTÍVEIS" className="bg-slate-900">Combustíveis</option>
-            <option value="TELEFONIA" className="bg-slate-900">Telefonia</option>
-            <option value="DIVULGAÇÃO" className="bg-slate-900">Divulgação</option>
-            <option value="ALIMENTAÇÃO" className="bg-slate-900">Alimentação</option>
-            <option value="HOSPEDAGEM" className="bg-slate-900">Hospedagem</option>
-            <option value="PASSAGENS" className="bg-slate-900">Passagens</option>
+            {tiposDespesa.map((t: any) => (
+              <option key={t.tipo} value={t.tipo} className="bg-slate-900">{t.tipo}</option>
+            ))}
           </select>
 
           <Button type="submit" className="bg-primary hover:bg-emerald-500 h-12 font-bold rounded-xl gap-2">

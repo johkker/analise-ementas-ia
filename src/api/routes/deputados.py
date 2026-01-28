@@ -41,3 +41,14 @@ async def get_deputado(id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Deputado não encontrado")
     
     return deputado
+
+@router.get("/partidos/", response_model=List[dict])
+async def list_partidos(db: AsyncSession = Depends(get_db)):
+    """Fetch all political parties for filter dropdowns"""
+    from src.models.politico import Partido
+    
+    query = select(Partido).order_by(Partido.sigla)
+    result = await db.execute(query)
+    partidos = result.scalars().all()
+    
+    return [{"id": p.id, "sigla": p.sigla, "nome": p.nome} for p in partidos]
