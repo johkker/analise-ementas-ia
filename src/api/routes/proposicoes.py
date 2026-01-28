@@ -17,14 +17,14 @@ async def list_proposicoes(
     limit: int = 10,
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(Proposicao).options(selectinload(Proposicao.autores)).limit(limit)
+    query = select(Proposicao).options(selectinload(Proposicao.autores))
     
     if politico_id:
-        # We need to import the autoria model or relationship
-        from src.models.proposicao import autoria_proposicao
+        # Filter by author using the many-to-many relationship
         query = query.join(Proposicao.autores).filter(Politico.id == politico_id)
-        # Note: Need to make sure Politico is imported or accessible.
-        # Actually simplest is using the relationship
+    
+    # Apply limit after filtering
+    query = query.limit(limit)
     
     result = await db.execute(query)
     proposicoes = result.scalars().all()
