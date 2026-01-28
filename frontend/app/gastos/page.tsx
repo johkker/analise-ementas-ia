@@ -233,7 +233,7 @@ export default function GastosExploration() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((gasto: any) => (
-              <Card key={gasto.id} className="glass group hover:border-primary/40 transition-all cursor-pointer overflow-hidden relative">
+              <Card key={gasto.id} className="glass group hover:border-primary/40 transition-all overflow-hidden relative">
                 {gasto.ai_resumo && (
                   <div className="absolute top-0 right-0 p-3 z-10">
                     <div className="bg-primary/20 backdrop-blur-md rounded-lg p-1.5 border border-primary/30" title="Analise por IA disponível">
@@ -274,6 +274,16 @@ export default function GastosExploration() {
                         <ArrowUpRight className="w-5 h-5" />
                     </Button>
                   </div>
+
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full h-8 text-[10px] font-black uppercase text-muted-foreground mt-3" 
+                    disabled
+                  >
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    Análise de IA em breve
+                  </Button>
                 </CardContent>
               </Card>
             ))}
