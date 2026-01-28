@@ -29,6 +29,7 @@
     - [x] Add React Query for robust frontend caching.
     - [x] Create `/deputados` exploration page.
     - [x] Implement `DeputyDetailsModal` (Expenses, Votes, Projects).
+    - [x] Create About page with data disclaimers and developer info.
 
 - [/] Deployment & DevOps
     - [/] Deploy Frontend to Vercel.

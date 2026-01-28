@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { 
   Users, 
   Search, 
@@ -32,22 +32,63 @@ export default function DeputadosPage() {
     setIsModalOpen(true);
   };
 
-  const { data: deputados, isLoading } = useQuery({
+  const { 
+    data, 
+    isLoading, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage 
+  } = useInfiniteQuery({
     queryKey: ['deputados', { partido, uf }],
-    queryFn: async () => {
-      let url = "/deputados/?";
+    queryFn: async ({ pageParam = 0 }) => {
+      let url = `/deputados/?limit=24&offset=${pageParam}`;
       if (partido !== "all") url += `&partido=${partido}`;
       if (uf !== "all") url += `&uf=${uf}`;
       return fetchAPI(url);
-    }
+    },
+    getNextPageParam: (lastPage: any[], allPages: any[][]) => {
+      // If we got less than 24 results, we've reached the end
+      if (lastPage.length < 24) return undefined;
+      // Otherwise, return the next offset
+      return allPages.length * 24;
+    },
+    initialPageParam: 0,
   });
 
-  const filteredDeputados = deputados?.filter((d: any) => 
+  // Flatten all pages into a single array
+  const deputados = data?.pages.flat() || [];
+
+  const filteredDeputados = deputados.filter((d: any) => 
     d.nome_parlamentar.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  );
+
+  // Infinite scroll observer
+  const observerTarget = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-8 pb-20 pt-8">
       <div className="flex flex-col space-y-4 text-center items-center">
         <h1 className="text-4xl md:text-5xl font-heading font-black tracking-tighter flex items-center gap-3">
           <Users className="w-12 h-12 text-primary" /> Representantes do Povo
@@ -119,6 +160,7 @@ export default function DeputadosPage() {
                       src={dep.foto_url} 
                       alt={dep.nome_parlamentar}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (

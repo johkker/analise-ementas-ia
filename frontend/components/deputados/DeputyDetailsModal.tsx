@@ -89,7 +89,7 @@ export function DeputyDetailsModal({ deputadoId, isOpen, onClose }: DeputyDetail
               {/* Profile Image */}
               <div className="relative w-40 h-40 rounded-3xl overflow-hidden border-4 border-slate-900 shadow-2xl shrink-0 bg-muted">
                 {deputado?.foto_url && (
-                  <Image src={deputado.foto_url} alt={deputado.nome_parlamentar} fill className="object-cover" />
+                  <Image src={deputado.foto_url} alt={deputado.nome_parlamentar} fill sizes="160px" className="object-cover" />
                 )}
               </div>
 
@@ -190,8 +190,8 @@ export function DeputyDetailsModal({ deputadoId, isOpen, onClose }: DeputyDetail
                           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 italic">
                             "{p.ementa}"
                           </p>
-                          <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase text-muted-foreground hover:text-primary p-0">
-                             Ler análise técnica <ChevronRight className="w-3 h-3 ml-1" />
+                          <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase text-muted-foreground p-0" disabled>
+                             Análise Técnica por IA em breve <ChevronRight className="w-3 h-3 ml-1" />
                           </Button>
                        </div>
                      ))

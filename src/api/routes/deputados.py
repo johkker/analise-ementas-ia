@@ -12,7 +12,9 @@ router = APIRouter(prefix="/deputados", tags=["Deputados"])
 @router.get("/", response_model=List[PoliticoPublic])
 async def list_deputados(
     partido: str = None, 
-    uf: str = None, 
+    uf: str = None,
+    limit: int = 24,
+    offset: int = 0,
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Politico).options(selectinload(Politico.partido))
@@ -22,6 +24,9 @@ async def list_deputados(
         query = query.join(Politico.partido).filter(Partido.sigla == partido.upper())
     if uf:
         query = query.filter(Politico.uf == uf.upper())
+    
+    # Add pagination
+    query = query.offset(offset).limit(limit)
         
     result = await db.execute(query)
     return result.scalars().all()

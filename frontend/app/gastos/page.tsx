@@ -83,7 +83,7 @@ export default function GastosExploration() {
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-8 pb-20 pt-8">
       <div className="flex flex-col space-y-4">
         <h1 className="text-4xl font-heading font-black tracking-tighter flex items-center gap-3">
           <Receipt className="w-10 h-10 text-primary" /> Auditoria de Gastos
