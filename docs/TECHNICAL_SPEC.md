@@ -1,4 +1,4 @@
-# 📋 TECHNICAL SPECIFICATION - Lupa Política v1.0
+# 📋 TECHNICAL SPECIFICATION - Lente Cidadã v1.0
 
 **Última atualização**: 28 Jan 2026  
 **Status**: ✅ COMPLETO E EM PRODUÇÃO
@@ -746,7 +746,7 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: lupa_politica
+      POSTGRES_DB: lente_cidada
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
 

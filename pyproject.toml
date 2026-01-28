@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lupa-politica"
+name = "lente-cidada"
 version = "0.1.0"
 description = "Análise de gastos e proposições de políticos usando IA"
 authors = ["Your Name <you@example.com>"]

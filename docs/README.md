@@ -1,4 +1,4 @@
-# 🇧🇷 Lupa Política - Transparência em Gastos Parlamentares
+# 🇧🇷 Lente Cidadã - Transparência em Gastos Parlamentares
 
 **Status**: 🟢 **PRODUÇÃO - v1.0** | **Última atualização**: 28 Jan 2026
 
@@ -259,7 +259,7 @@ redis-cli ping  # Verificar: PONG
 
 **PostgreSQL connection error?**
 ```bash
-psql -U user -d lupa_politica -c "SELECT 1"
+psql -U user -d lente_cidada -c "SELECT 1"
 # Check Railway: Services > Logs
 ```
 
@@ -280,5 +280,5 @@ celery -A src.core.celery_app inspect scheduled  # Tasks agendadas?
 
 ---
 
-🎊 **Lupa Política está viva. Transparência brasileira um passo mais perto!**
+🎊 **Lente Cidadã está viva. Transparência brasileira um passo mais perto!**
 

@@ -1,4 +1,4 @@
-# 🛣️ ROADMAP v2+ - Lupa Política
+# 🛣️ ROADMAP v2+ - Lente Cidadã
 
 **Última atualização**: 28 Jan 2026  
 **Status v1.0**: ✅ COMPLETO | **Próxima fase**: v2 (Fevereiro 2026)
@@ -413,7 +413,7 @@ Importante para v2 planning:
 
 ## 🏁 Meta Final
 
-Fazer de Lupa Política o **referência em transparência política brasileira**, com:
+Fazer de Lente Cidadã o **referência em transparência política brasileira**, com:
 - ✅ 10k+ usuários mensais
 - ✅ Dataset mais completo (gastos + votos + proposições)
 - ✅ IA insights (não só flagging de anomalias)

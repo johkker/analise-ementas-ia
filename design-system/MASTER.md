@@ -1,4 +1,4 @@
-# Design System Master - Lupa Política
+# Design System Master - Lente Cidadã
 
 ## Core Concept
 A premium, glassmorphic dashboard for political transparency. The design must feel high-tech, trustworthy, and extremely polished ("Pro Max").

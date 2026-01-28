@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
 from src.services.extractor.camara import CamaraExtractor
 from src.services.resilience_ingestor import ResilienceIngestor
-from src.services.ai_worker import processar_analise_ia
 
 from src.api.routes import deputados, proposicoes, stats, gastos
 from src.core.security import rate_limiter
@@ -12,7 +11,7 @@ from google import genai
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 
-app = FastAPI(title="Lupa Política API")
+app = FastAPI(title="Lente Cidadã API")
 
 # Configure CORS
 app.add_middleware(
@@ -46,7 +45,7 @@ app.include_router(gastos.router, dependencies=[Depends(rate_limiter)])
 
 @app.get("/")
 async def root():
-    return {"message": "Lupa Política is running"}
+    return {"message": "Lente Cidadã is running"}
 
 @app.post("/ingest/deputados")
 async def ingest_deputados(db: AsyncSession = Depends(get_db)):

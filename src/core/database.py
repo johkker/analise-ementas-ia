@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+import json
 # Import models to ensure they are registered with Base
 from src.models.gasto import Gasto, Empresa
 from src.models.politico import Politico
@@ -17,7 +18,9 @@ if db_url.startswith("postgresql://"):
 engine = create_async_engine(
     db_url, 
     echo=True,
-    poolclass=NullPool
+    poolclass=NullPool,
+    # Ensure JSON serialization preserves unicode characters (no \u escapes)
+    json_serializer=lambda v: json.dumps(v, ensure_ascii=False, default=str),
 )
 
 AsyncSessionLocal = async_sessionmaker(

@@ -262,14 +262,30 @@ class ResilienceIngestor:
                 # Validate main object
                 validated_item = VotacaoSchema(**raw_item)
                 item_dict = validated_item.model_dump(by_alias=False, exclude={'uri_proposicao'})
+
+                # Normalize keys for DB insertion: map possible API fields to DB column names
+                # Some payloads include 'data_registro' (horário de registro) instead of 'data'
+                if 'data_registro' in item_dict and not item_dict.get('data'):
+                    item_dict['data'] = item_dict.pop('data_registro')
+
+                # Keep only columns that exist on the `Votacao` table to avoid "Unconsumed column names"
+                allowed = {'id', 'uri', 'data', 'sigla_orgao', 'aprovacao', 'descricao', 'proposicao_id'}
+                # proposicao_id may be added later; preserve other extras in raw_payload if needed
+                item_dict = {k: v for k, v in item_dict.items() if k in allowed}
                 
-                # Extract proposicao_id from URI
-                prop_uri = validated_item.uri_proposicao
-                if prop_uri and '/proposicoes/' in prop_uri:
+                # Extract proposicao_id from possible URI fields (be permissive)
+                prop_uri = (
+                    raw_item.get('uriProposicaoObjeto') or
+                    raw_item.get('uri_proposicao') or
+                    getattr(validated_item, 'uri_proposicao', None)
+                )
+                if isinstance(prop_uri, str) and '/proposicoes/' in prop_uri:
                     try:
-                        item_dict['proposicao_id'] = int(prop_uri.split('/proposicoes/')[-1])
-                    except (ValueError, IndexError):
-                        pass
+                        # take last path segment and coerce to int
+                        pid = int(prop_uri.rstrip('/').split('/')[-1])
+                        item_dict['proposicao_id'] = pid
+                    except Exception:
+                        print(f"Could not parse proposicao id from uri: {prop_uri}")
                 
                 # Handle nested Votos
                 raw_votos = raw_item.get('votos', [])

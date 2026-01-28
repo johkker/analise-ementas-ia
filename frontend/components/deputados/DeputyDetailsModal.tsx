@@ -70,7 +70,7 @@ export function DeputyDetailsModal({ deputadoId, isOpen, onClose }: DeputyDetail
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl glass border-white/10 p-0 overflow-hidden rounded-3xl">
+      <DialogContent className="glass border-white/10 p-0 overflow-hidden rounded-3xl sm:max-w-2xl md:max-w-3xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Detalhes do Deputado: {deputado?.nome_parlamentar}</DialogTitle>
           <DialogDescription>
@@ -87,7 +87,7 @@ export function DeputyDetailsModal({ deputadoId, isOpen, onClose }: DeputyDetail
           <div className="px-8 pb-8 -mt-16 relative z-10">
             <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Profile Image */}
-              <div className="relative w-40 h-40 rounded-3xl overflow-hidden border-4 border-slate-900 shadow-2xl shrink-0 bg-muted">
+              <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-4 border-slate-900 shadow-2xl shrink-0 bg-muted">
                 {deputado?.foto_url && (
                   <Image src={deputado.foto_url} alt={deputado.nome_parlamentar} fill sizes="160px" className="object-cover" />
                 )}

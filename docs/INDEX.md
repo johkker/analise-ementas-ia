@@ -1,4 +1,4 @@
-# 📚 Documentação Lupa Política
+# 📚 Documentação Lente Cidadã
 
 **Status**: ✅ Consolidado em 3 arquivos principais | **Última atualização**: 28 Jan 2026
 
@@ -23,7 +23,7 @@
 **Leia isso se você**: quer entender o projeto rapidamente
 
 **Contém**:
-- ✅ O que é Lupa Política
+- ✅ O que é Lente Cidadã
 - ✅ Quick start (URLs, como rodar localmente)
 - ✅ Status v1.0 (% completo de cada componente)
 - ✅ Arquitetura em 30 segundos

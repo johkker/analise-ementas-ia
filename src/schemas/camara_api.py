@@ -47,16 +47,29 @@ class ProposicaoSchema(BaseModel):
     data_apresentacao: Optional[datetime] = Field(None, alias="dataApresentacao")
 
 class VotacaoSchema(BaseModel):
+    model_config = ConfigDict(extra='ignore', strict=False)
     id: str
     uri: str
     data: Optional[datetime] = None
-    data_registro: Optional[datetime] = Field(None, alias="dataHoraRegistro")
+    data_registro: Optional[datetime] = Field(
+        None,
+        alias="dataHoraRegistro",
+        validation_alias=AliasChoices("dataHoraRegistro", "data_registro", "dataRegistro"),
+    )
     sigla_orgao: str = Field(alias="siglaOrgao")
     aprovacao: Optional[int] = None
     descricao: str
     uri_proposicao: Optional[str] = Field(None, alias="uriProposicaoObjeto")
 
 class VotoSchema(BaseModel):
-    data_registro: Optional[str] = Field(None, alias="dataRegistroVoto")
+    model_config = ConfigDict(extra='ignore', strict=False)
+    data_registro: Optional[str] = Field(
+        None,
+        alias="dataRegistroVoto",
+        validation_alias=AliasChoices("dataRegistroVoto", "data_registro", "dataRegistro"),
+    )
     tipo_voto: str = Field(alias="tipoVoto")
-    deputado: PoliticoSchema = Field(alias="deputado_")
+    deputado: PoliticoSchema = Field(
+        alias="deputado",
+        validation_alias=AliasChoices("deputado", "deputado_"),
+    )

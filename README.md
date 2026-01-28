@@ -1,4 +1,4 @@
-# Lupa Política
+# Lente Cidadã
 
 Resumo de gastos e proposições de políticos brasileiros usando IA.
 

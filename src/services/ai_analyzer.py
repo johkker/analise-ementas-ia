@@ -12,6 +12,7 @@ from decimal import Decimal
 import asyncio
 
 from sqlalchemy import select, and_, not_, func
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import AsyncSessionLocal
@@ -83,6 +84,9 @@ class GastoAnalyzer(BaseAnalyzer):
                 Gasto.id.not_in(analyzed_ids),
                 Gasto.data_emissao.isnot(None)  # Apenas com data válida
             )
+        ).options(
+            selectinload(Gasto.politico),
+            selectinload(Gasto.empresa)
         ).order_by(
             Gasto.data_emissao.desc()  # Mais recentes primeiro
         ).limit(limit)
@@ -92,13 +96,40 @@ class GastoAnalyzer(BaseAnalyzer):
 
     async def prepare_analysis_text(self, gasto: Gasto) -> str:
         """Prepara texto descritivo do gasto para análise"""
-        return (
-            f"Gasto de R$ {gasto.valor:.2f} "
-            f"({gasto.tipo_despesa or 'N/A'}) "
-            f"em {gasto.data_emissao} "
-            f"documento: {gasto.url_documento or 'N/A'} "
-            f"por deputado ID {gasto.politico_id}"
+        # Safely fetch related fields if loaded
+        politico_nome = None
+        empresa_nome = None
+        try:
+            politico_nome = getattr(gasto.politico, 'nome_parlamentar', None)
+        except Exception:
+            politico_nome = None
+        try:
+            empresa_nome = getattr(gasto.empresa, 'nome_fantasia', None)
+        except Exception:
+            empresa_nome = None
+
+        detalhes = [
+            f"id: {getattr(gasto, 'id', None)}",
+            f"ext_id: {getattr(gasto, 'ext_id', None)}",
+            f"politico_id: {getattr(gasto, 'politico_id', None)}",
+            f"politico_nome: {politico_nome or 'N/A'}",
+            f"empresa_cnpj: {getattr(gasto, 'empresa_cnpj', None)}",
+            f"empresa_nome: {empresa_nome or 'N/A'}",
+            f"valor: R$ {getattr(gasto, 'valor', 'N/A')}",
+            f"data_emissao: {getattr(gasto, 'data_emissao', 'N/A')}",
+            f"tipo_despesa: {getattr(gasto, 'tipo_despesa', 'N/A')}",
+            f"url_documento: {getattr(gasto, 'url_documento', 'N/A')}"
+        ]
+
+        prompt = (
+            "REGISTRO DE GASTO:\n" + "\n".join(detalhes) + "\n\n"
+            "INSTRUÇÕES:\n"
+            "Analise tecnicamente este gasto. Responda em JSON seguindo o schema fornecido.\n"
+            "Perguntas úteis: existe indício de duplicidade, valor acima do padrão, pagamento a fornecedor repetido, uso indevido da verba ou ausência de evidências? Cite evidências objetivas.\n"
+            "Forneça: resumo executivo (3 frases), impacto financeiro (ALTO/MEDIO/BAIXO/INCERTO), grupos beneficiados, riscos de corrupção, sentimento político (-1..1), score_anomalia (0..1), evidencias (lista) e recomendacoes (lista).\n"
         )
+
+        return prompt
 
     async def analyze(
         self,
@@ -111,8 +142,8 @@ class GastoAnalyzer(BaseAnalyzer):
             # Preparar texto
             texto = await self.prepare_analysis_text(gasto)
 
-            # Chamar IA
-            resultado = self.llm.analisar_gasto(texto)
+            # Chamar IA (async rate-limited)
+            resultado = await self.llm.analisar_gasto_async(texto)
 
             # Extrair score (safe conversion)
             score = None
@@ -181,6 +212,9 @@ class VotoAnalyzer(BaseAnalyzer):
                 Voto.id.not_in(analyzed_ids),
                 Votacao.data.isnot(None)
             )
+        ).options(
+            selectinload(Voto.politico),
+            selectinload(Voto.votacao)
         ).order_by(
             Votacao.data.desc()  # Mais recentes primeiro
         ).limit(limit)
@@ -190,11 +224,35 @@ class VotoAnalyzer(BaseAnalyzer):
 
     async def prepare_analysis_text(self, voto: Voto) -> str:
         """Prepara texto descritivo do voto para análise"""
-        return (
-            f"Voto '{voto.voto}' "
-            f"do deputado ID {voto.politico_id} "
-            f"na votação ID {voto.votacao_id}"
+        # Try to include related votacao and politico info if available
+        votacao_info = None
+        politico_nome = None
+        try:
+            votacao_info = getattr(voto.votacao, 'descricao', None)
+        except Exception:
+            votacao_info = None
+        try:
+            politico_nome = getattr(voto.politico, 'nome_parlamentar', None)
+        except Exception:
+            politico_nome = None
+
+        detalhes = [
+            f"id: {getattr(voto, 'id', None)}",
+            f"votacao_id: {getattr(voto, 'votacao_id', None)}",
+            f"votacao_descricao: {votacao_info or 'N/A'}",
+            f"politico_id: {getattr(voto, 'politico_id', None)}",
+            f"politico_nome: {politico_nome or 'N/A'}",
+            f"tipo_voto: {getattr(voto, 'tipo_voto', None)}"
+        ]
+
+        prompt = (
+            "REGISTRO DE VOTO:\n" + "\n".join(detalhes) + "\n\n"
+            "INSTRUÇÕES:\n"
+            "Analise se o padrão de voto apresenta coerência ideológica com histórico, possíveis trocas de posição, ou sinais de coordenação indevida.\n"
+            "Responda em JSON conforme schema: resumo_executivo, impacto_financeiro (se aplicável), grupos_beneficiados (setores afetados), riscos_corrupcao, sentimento_politico, score_anomalia, evidencias, recomendacoes.\n"
         )
+
+        return prompt
 
     async def analyze(
         self,
@@ -205,7 +263,7 @@ class VotoAnalyzer(BaseAnalyzer):
         """Analisa padrão de voto"""
         try:
             texto = await self.prepare_analysis_text(voto)
-            resultado = self.llm.analisar_gasto(texto)  # Reusar método genérico
+            resultado = await self.llm.analisar_voto_async(texto)
 
             score = None
             if resultado.get('score_anomalia'):
@@ -268,6 +326,8 @@ class ProposicaoAnalyzer(BaseAnalyzer):
                 Proposicao.id.not_in(analyzed_ids),
                 Proposicao.data_apresentacao.isnot(None)
             )
+        ).options(
+            selectinload(Proposicao.autores)
         ).order_by(
             Proposicao.data_apresentacao.desc()  # Mais recentes primeiro
         ).limit(limit)
@@ -277,12 +337,33 @@ class ProposicaoAnalyzer(BaseAnalyzer):
 
     async def prepare_analysis_text(self, proposicao: Proposicao) -> str:
         """Prepara texto da proposição para análise"""
-        return (
-            f"Proposição: {proposicao.titulo}\n"
-            f"Ementa: {proposicao.ementa}\n"
-            f"Status: {proposicao.status}\n"
-            f"Apresentada em: {proposicao.data_apresentacao}"
+        # Collect authors if available
+        autores = []
+        try:
+            for a in getattr(proposicao, 'autores', []) or []:
+                nome = getattr(a, 'nome_parlamentar', None) or getattr(a, 'nome_civil', None)
+                if nome:
+                    autores.append(nome)
+        except Exception:
+            autores = []
+
+        detalhes = [
+            f"id: {getattr(proposicao, 'id', None)}",
+            f"tipo: {getattr(proposicao, 'sigla_tipo', None)}",
+            f"numero/ano: {getattr(proposicao, 'numero', None)}/{getattr(proposicao, 'ano', None)}",
+            f"ementa: {getattr(proposicao, 'ementa', 'N/A')}",
+            f"data_apresentacao: {getattr(proposicao, 'data_apresentacao', 'N/A')}",
+            f"autores: {', '.join(autores) if autores else 'N/A'}"
+        ]
+
+        prompt = (
+            "REGISTRO DE PROPOSIÇÃO:\n" + "\n".join(detalhes) + "\n\n"
+            "INSTRUÇÕES:\n"
+            "Analise impacto público, possí­vel favorecimento de grupos, viabilidade política e riscos institucionais.\n"
+            "Responda em JSON conforme schema: resumo_executivo, impacto_financeiro, grupos_beneficiados, riscos_corrupcao, sentimento_politico, score_anomalia, evidencias, recomendacoes.\n"
         )
+
+        return prompt
 
     async def analyze(
         self,
@@ -293,7 +374,7 @@ class ProposicaoAnalyzer(BaseAnalyzer):
         """Analisa impacto e viabilidade da proposição"""
         try:
             texto = await self.prepare_analysis_text(proposicao)
-            resultado = self.llm.analisar_gasto(texto)
+            resultado = await self.llm.analisar_proposicao_async(texto)
 
             score = None
             if resultado.get('score_anomalia'):
@@ -373,7 +454,7 @@ class CrossDataAnalyzer(BaseAnalyzer):
         """Análise cruzada de padrões"""
         try:
             texto = await self.prepare_analysis_text(politico_data)
-            resultado = self.llm.analisar_gasto(texto)
+            resultado = await self.llm.analisar_cross_data_async(texto)
 
             score = None
             if resultado.get('score_anomalia'):
@@ -484,11 +565,13 @@ class AIAnalysisManager:
 
             # Analyze each entity
             for entity in entities:
+                # capture primary key before any DB state changes/rollbacks
+                entity_id = getattr(entity, 'id', None)
                 try:
                     result = await analyzer.analyze(
                         session,
                         entity,
-                        entity.id
+                        entity_id
                     )
                     results.append(result)
                     analyzed_count += 1
@@ -503,11 +586,11 @@ class AIAnalysisManager:
                         print(f"  [{analyzed_count}/{len(entities)}] Analyzed...")
 
                 except Exception as e:
-                    print(f"  ❌ Error analyzing entity {entity.id}: {str(e)}")
+                    print(f"  ❌ Error analyzing entity {entity_id}: {str(e)}")
                     error_count += 1
                     results.append({
                         "status": "error",
-                        "entity_id": entity.id,
+                        "entity_id": entity_id,
                         "error": str(e),
                         "type": analysis_type.value
                     })

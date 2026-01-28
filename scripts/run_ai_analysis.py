@@ -31,7 +31,7 @@ from src.services.ai_analyzer import AIAnalysisManager, AnalysisType
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Run AI analyses for Lupa Política"
+        description="Run AI analyses for Lente Cidadã"
     )
 
     # Modo: single type vs daily

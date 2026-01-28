@@ -57,23 +57,23 @@ export default function AboutPage() {
             <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-6 h-6 text-yellow-500" />
             </div>
-            <div className="space-y-4 flex-1">
+            <div className="space-y-4 flex-1 min-w-0">
               <h2 className="text-2xl font-heading font-black tracking-tight">Aviso Importante sobre os Dados</h2>
               
               <div className="space-y-3 text-muted-foreground leading-relaxed">
                 <p className="flex items-start gap-2">
                   <Database className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span><strong className="text-foreground">Fonte de Dados:</strong> Todas as informações sobre gastos, proposições e votações são obtidas diretamente da API oficial de Dados Abertos da Câmara dos Deputados. Este projeto não gera ou modifica dados primários.</span>
+                  <span className="break-words"><strong className="text-foreground">Fonte de Dados:</strong> Todas as informações sobre gastos, proposições e votações são obtidas diretamente da API oficial de Dados Abertos da Câmara dos Deputados. Este projeto não gera ou modifica dados primários.</span>
                 </p>
                 
                 <p className="flex items-start gap-2">
                   <Sparkles className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                  <span><strong className="text-foreground">Análises por IA:</strong> As análises e resumos gerados por inteligência artificial são <strong className="text-yellow-500">suposições e interpretações automatizadas</strong>, não constituindo verdades absolutas ou pareceres oficiais. Sempre verifique as informações originais antes de tomar qualquer decisão.</span>
+                  <span className="break-words"><strong className="text-foreground">Análises por IA:</strong> As análises e resumos gerados por inteligência artificial são <strong className="text-yellow-500">suposições e interpretações automatizadas</strong>, não constituindo verdades absolutas ou pareceres oficiais. Sempre verifique as informações originais antes de tomar qualquer decisão.</span>
                 </p>
                 
                 <p className="flex items-start gap-2">
                   <Shield className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                  <span><strong className="text-foreground">Propósito:</strong> Este site é um ponto de entrada para facilitar a visualização e compreensão inicial da atividade parlamentar. Não substitui a consulta aos canais oficiais da Câmara dos Deputados.</span>
+                  <span className="break-words"><strong className="text-foreground">Propósito:</strong> Este site é um ponto de entrada para facilitar a visualização e compreensão inicial da atividade parlamentar. Não substitui a consulta aos canais oficiais da Câmara dos Deputados.</span>
                 </p>
               </div>
 

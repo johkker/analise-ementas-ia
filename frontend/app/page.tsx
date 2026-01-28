@@ -206,9 +206,12 @@ export default function Home() {
                 </div>
               ))}
               <div className="pt-2">
-                <Button variant="ghost" className="w-full text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary h-10">
+                <Button variant="ghost" className="w-full text-[10px] font-black uppercase tracking-widest text-muted-foreground h-10 opacity-60 cursor-not-allowed" disabled>
                   Ver todas as categorias
                 </Button>
+                <div className="mt-2 flex justify-end">
+                  <Badge className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5">EM BREVE</Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -244,11 +247,12 @@ export default function Home() {
                         </span>
                     </div>
                   </div>
-                  <Link href={`/proposicoes/${featuredProposicao.id}`}>
-                    <Button variant="secondary" size="sm" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-10 px-6">
+                  <div className="flex items-center gap-3">
+                    <Button variant="secondary" size="sm" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-10 px-6 opacity-60 cursor-not-allowed" disabled>
                       Relatório Completo
                     </Button>
-                  </Link>
+                    <Badge className="bg-primary/10 text-primary font-black text-[10px] uppercase tracking-widest">EM BREVE</Badge>
+                  </div>
                 </div>
               </CardContent>
             </Card>

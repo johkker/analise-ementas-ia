@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Lupa Política | Transparência Legislativa",
+  title: "Lente Cidadã | Transparência Legislativa",
   description: "Análise inteligente de gastos e proposições da Câmara dos Deputados.",
 };
 

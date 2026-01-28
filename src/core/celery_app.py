@@ -4,11 +4,12 @@ from src.core.database import setup_worker_db
 
 setup_worker_db()
 
+# Do not include the deprecated `ai_worker` module; analyses are run via scripts now.
 celery_app = Celery(
-    "lupa_politica_worker",
+    "lente_cidada_worker",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
-    include=["src.services.ai_worker", "src.services.data_fetcher"]
+    include=["src.services.data_fetcher"]
 )
 
 celery_app.conf.update(
@@ -41,9 +42,5 @@ celery_app.conf.beat_schedule = {
         'schedule': crontab(hour=3, minute=0),
         'args': (7,) 
     },
-    'analyze-gastos-periodic': {
-        'task': 'src.services.ai_worker.mass_analyze_pending_gastos',
-        'schedule': crontab(minute='*/15'), # Run every 15 mins
-        'args': (2,) # Analyze 2 items per run (total 192/day max if 1.5 flash, or respects 20 RPD better)
-    }
+    # Note: AI analysis was decoupled from ingestion and is executed via scripts (scripts/run_ai_analysis.py).
 }
